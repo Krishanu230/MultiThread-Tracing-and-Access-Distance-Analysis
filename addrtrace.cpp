@@ -4,25 +4,26 @@
 FILE * trace;
 PIN_LOCK lock;
 
-//even though the size of uint64 and long long unsigned int is equal (8 bytes, verified via sizeof)
-// but the compliler still throws an error thatuint64_t is long unsigned int notlong long unsigned int when used with llu format specifier.
-// so we will typecast uint64_t to long long unsigned
 VOID partition(THREADID tid, VOID * addr,UINT32 size, char type){
   uint64_t start =  (uint64_t) addr;
   uint64_t end ;
   uint64_t blockCutInc = start | 0x000000000000003F;
+
+  //we can not use start+size-1 as for very high 64bit value of start(ie addr) it overflows on addition.
+  //uint64_t end = min(start+size-1,blockCutInc);
+
+  //so instead well subtract it from the next block cut and compare
   if ((start)<(blockCutInc+1-size)){
     end = start+size-1;
   }else{
     end = blockCutInc;
   }
-//  uint64_t end = min(start+size-1,blockEndInc);
-  //cout<<"blockend is"<<blockEndInc<<endl;
-  //cout<<"end is"<<end<<endl;
+
   while(size){
-    //cout<<"s is"<<s<<endl;
     while(start<=end){
-      //cout<<"start is "<<start<<"end is"<<end<<endl;
+      //even though the size of uint64 and long long unsigned int is equal (8 bytes, verified via sizeof)
+      // but the compliler still throws an error thatuint64_t is long unsigned int notlong long unsigned int when used with llu format specifier.
+      // so we will typecast uint64_t to long long unsigned
       int eightblockscount = (int)((end-start+1)/8);
       for (int i =0; i<eightblockscount; i++){
         fprintf(trace,"%d: %c %llu\n", tid, type, (long long unsigned)start);
@@ -65,7 +66,9 @@ VOID RecordMemRead(THREADID tid, VOID * addr,UINT32 size)
 {
     PIN_GetLock(&lock, tid+1);
     partition(tid, addr, size, 'R');
-    fflush(trace);
+    //we'll use the buffered fprintf directly in partition function flushing every time leads to considerable increase in time.
+    //If the programs exits properly there should be no issues.
+    //fflush(trace);
     PIN_ReleaseLock(&lock);
 }
 
@@ -74,7 +77,9 @@ VOID RecordMemWrite(THREADID tid, VOID * addr,UINT32 size)
 {
     PIN_GetLock(&lock, tid+1);
     partition(tid, addr, size,'W');
-    fflush(trace);
+    //we'll use the buffered fprintf directly in partition function flushing every time leads to considerable increase in time.
+    //If the programs exits properly there should be no issues.
+    //fflush(trace);
     PIN_ReleaseLock(&lock);
 }
 
