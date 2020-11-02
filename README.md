@@ -12,6 +12,4 @@ Cache Info: a single-level 2 MB 16-way cache with 64-byte block size and LRU rep
 
 Thread-wise Sharing profile analysis using:sharingProfile.py
 
-Graphs:  graph_trace1.png, graph_trace1L1filtered.png, graph_trace2.png, graph_trace2L1filtered.png, graph_trace3.png, graph_trace3L1filtered.png, graph_trace4.png, graph_trace4L1filtered.png 
-
 Final Report and Conclusion: Report.pdf
