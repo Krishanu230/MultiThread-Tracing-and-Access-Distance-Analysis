@@ -12,8 +12,6 @@
 
 using namespace std;
 
-//create a mask st first a digit remain.
-//11010101... -> 110000.... for a =2 if we apply the mask
 u_int64_t createMask(u_int64_t a){
     u_int64_t  mask;
     //we have to use 1ull because standard shifting in cplusplus works for 32 bit only(?)
